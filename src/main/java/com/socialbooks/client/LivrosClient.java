@@ -9,18 +9,56 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.socialbooks.client.domain.Autor;
+import com.socialbooks.client.domain.Comentario;
 import com.socialbooks.client.domain.Livro;
 
 public class LivrosClient {
 	
-	private String uriLivro = "http://localhost:8080/livros";
-	private String uriAutor = "http://localhost:8080/autores";
-	private String autorizacao = "\"Authorization\", \"Basic bGl2cm9faXByYjpzM25oNA==\"";
+	public String uriLivro = "http://localhost:8080/livros/";
+	public String uriAutor = "http://localhost:8080/autores/";
+	private String key = "Basic bGl2cm9faXByYjpzM25oNA==";
 
+	// POST do autor
+	public Autor salvarAutor(Autor autor) {
+		RequestEntity<Autor> request = RequestEntity
+				.post(URI.create(uriAutor))
+				.header("Authorization", key)
+				.body(autor);
+		
+		ResponseEntity<Autor> response = new RestTemplate().exchange(request, Autor.class);
+		
+		return response.getBody();
+	}
+	
+	// POST do Livro
+	public Livro salvarLivro(Livro livro) {
+		RequestEntity<Livro> request = RequestEntity
+				.post(URI.create(uriLivro))
+				.header("Authorization", key)
+				.body(livro);
+		
+		ResponseEntity<Livro> response = new RestTemplate().exchange(request, Livro.class);
+		
+		return response.getBody();
+	}
+	
+	//POST do Comentario
+	public Comentario salvarComentario(Comentario comentario) {
+		RequestEntity<Comentario> request = RequestEntity
+				.post(URI.create(uriLivro + comentario.getLivro().getId() + "/comentarios"))
+				.header("Authorization", key)
+				.body(comentario);
+		
+		ResponseEntity<Comentario> response = new RestTemplate().exchange(request, Comentario.class);
+		
+		return response.getBody();
+	}
+	
+	// Lista de livros cadastrados
 	public List<Livro> listarLivro(){
 		RequestEntity<Void> request = RequestEntity
 				.get(URI.create(uriLivro))
-				.header(autorizacao)
+				.header("Authorization", key)
 				.build();
 		
 		RestTemplate restTemplate = new RestTemplate();
@@ -28,26 +66,5 @@ public class LivrosClient {
 		
 		return Arrays.asList(response.getBody());
 	}
-	
-	public String salvarAutor(Autor autor) {
-		RequestEntity<Autor> request = RequestEntity
-				.post(URI.create(uriAutor))
-				.header(autorizacao)
-				.body(autor);
-		
-		ResponseEntity<Void> response = new RestTemplate().exchange(request, Void.class);
-		
-		return response.getHeaders().getLocation().toString();
-	}
-	
-	public String salvarLivro(Livro livro) {
-		RequestEntity<Livro> request = RequestEntity
-				.post(URI.create(uriLivro))
-				.header(autorizacao)
-				.body(livro);
-		
-		ResponseEntity<Void> response = new RestTemplate().exchange(request, Void.class);
-		
-		return response.getHeaders().getLocation().toString();
-	}
+
 }
