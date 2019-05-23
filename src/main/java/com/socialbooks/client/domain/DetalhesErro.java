@@ -1,4 +1,4 @@
-package com.socialbooks.aplicacao;
+package com.socialbooks.client.domain;
 
 public class DetalhesErro {
 
