@@ -2,6 +2,7 @@ package com.socialbooks.client;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.http.RequestEntity;
@@ -14,18 +15,26 @@ import com.socialbooks.client.domain.Livro;
 
 public class LivrosClient {
 	
-	public String uriLivro = "http://localhost:8080/livros/";
-	public String uriAutor = "http://localhost:8080/autores/";
-	private String key = "Basic bGl2cm9faXByYjpzM25oNA==";
+	private RestTemplate restTemplate;
+	private String uriBase;
+	private String credencialAuth;
+	
+	public LivrosClient(String url, String usuario, String senha) {
+		restTemplate = new RestTemplate();
+		this.uriBase = url;
+		String credencial = usuario + ":" + senha;
+		credencialAuth = "Basic " + Base64.getEncoder().encodeToString(credencial.getBytes());
+	}
+	
 
 	// POST do Autor
 	public ResponseEntity<Autor> salvarAutor(Autor autor) {
 		RequestEntity<Autor> request = RequestEntity
-				.post(URI.create(uriAutor))
-				.header("Authorization", key)
+				.post(URI.create(uriBase + "/autores"))
+				.header("Authorization", credencialAuth)
 				.body(autor);
 		
-		ResponseEntity<Autor> response = new RestTemplate().exchange(request, Autor.class);
+		ResponseEntity<Autor> response = restTemplate.exchange(request, Autor.class);
 		
 		return response;
 	}
@@ -33,11 +42,11 @@ public class LivrosClient {
 	// POST do Livro
 	public ResponseEntity<Livro> salvarLivro(Livro livro) {
 		RequestEntity<Livro> request = RequestEntity
-				.post(URI.create(uriLivro))
-				.header("Authorization", key)
+				.post(URI.create(uriBase + "/livros"))
+				.header("Authorization", credencialAuth)
 				.body(livro);
 		
-		ResponseEntity<Livro> response = new RestTemplate().exchange(request, Livro.class);
+		ResponseEntity<Livro> response = restTemplate.exchange(request, Livro.class);
 		
 		return response;
 	}
@@ -45,11 +54,11 @@ public class LivrosClient {
 	//POST do Comentario
 	public ResponseEntity<Comentario> salvarComentario(Comentario comentario) {
 		RequestEntity<Comentario> request = RequestEntity
-				.post(URI.create(uriLivro + comentario.getLivro().getId() + "/comentarios"))
-				.header("Authorization", key)
+				.post(URI.create(uriBase + "/livros/" + comentario.getLivro().getId() + "/comentarios"))
+				.header("Authorization", credencialAuth)
 				.body(comentario);
 		
-		ResponseEntity<Comentario> response = new RestTemplate().exchange(request, Comentario.class);
+		ResponseEntity<Comentario> response = restTemplate.exchange(request, Comentario.class);
 		
 		return response;
 	}
@@ -57,13 +66,25 @@ public class LivrosClient {
 	// Lista de livros cadastrados
 	public List<Livro> listarLivro(){
 		RequestEntity<Void> request = RequestEntity
-				.get(URI.create(uriLivro))
-				.header("Authorization", key)
+				.get(URI.create(uriBase + "/livros"))
+				.header("Authorization", credencialAuth)
 				.build();
 		
-		ResponseEntity<Livro[]> response = new RestTemplate().exchange(request, Livro[].class);
+		ResponseEntity<Livro[]> response = restTemplate.exchange(request, Livro[].class);
 		
 		return Arrays.asList(response.getBody());
+	}
+	
+	// Lista um livro específico
+	public Livro buscarLivro(Long id) {
+		RequestEntity<Void> request = RequestEntity
+				.get(URI.create(uriBase + "/livros/" + id))
+				.header("Authorization", credencialAuth)
+				.build();
+		
+		ResponseEntity<Livro> response = restTemplate.exchange(request, Livro.class);
+		
+		return response.getBody();
 	}
 
 }

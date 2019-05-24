@@ -15,7 +15,11 @@ public class Aplicacao {
 
 	public static void main(String[] args) throws ParseException {
 
-		LivrosClient cliente = new LivrosClient();
+		String url = "http://localhost:8080";
+		String usuario = "alexandre";
+		String senha = "s3nh4";
+
+		LivrosClient cliente = new LivrosClient(url, usuario, senha);
 
 		// Criar Autor
 		Autor autor = new Autor();
@@ -52,10 +56,17 @@ public class Aplicacao {
 		List<Livro> listaLivros = cliente.listarLivro();
 		for (Livro livroList : listaLivros) {
 			System.out.println("-------------------------------------");
-			System.out.println("Livro: " + livroList.getNome());
+			System.out.println("Livro número: " + livroList.getId());
 			System.out.println("Autor: " + livroList.getAutor().getNome());
+			System.out.println("Livro: " + livroList.getNome());
 			System.out.println("Comentarios: " + livroList.getComentarios().get(0).getTexto());
 		}
 
+		// Buscar Livro
+		Livro livroEncontrado = cliente.buscarLivro(livro.getId());
+		System.out.println("-------------------------------------");
+		System.out.println("Livro encontrado: " + livroEncontrado.getNome());
+		
+		
 	}
 }
